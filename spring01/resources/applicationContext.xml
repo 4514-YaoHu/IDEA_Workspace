@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--实例化User对象-->
+    <!--
+        bean标签：创建一个实例对象
+        id:属性必须在配置文件中，必须保证唯一，任意命名，符合变量规则即可
+        class属性：填写要实例化类的路径
+        property标签可以有(有set()方法的时候可以给)
+    -->
+    <bean id="zhangsan" class="com.wyc.pojo.User">
+        <!--property标签:配置属性名称(类中的set方法名)-->
+        <!--setter注入-->
+        <property name="userName" value="张三"/>
+        <property name="context" value="好好学习，天天向上"/>
+    </bean>
+    <!--注入userDao-->
+    <bean id="userDao" class="com.wyc.dao.impl.UserDaoImpl"/>
+    <!--注入userService-->
+    <bean id="userService" class="com.wyc.service.impl.UserServiceImpl">
+        <property name="userDao" ref="userDao"></property>
+    </bean>
+
+    <!--一下配置是AOP切面的配置-->
+    <!--1.注入增强类-->
+    <bean id="userServiceLogger" class="com.wyc.aop.UserServiceLogger"/>
+    <!--2.定义aop切面-->
+    <aop:config>
+        <!--3.定义切点-->
+        <aop:pointcut id="pointcut" expression="execution(* com.wyc.service..*.*(..))"/>
+        <!--4.使用切面编程-->
+        <aop:aspect ref="userServiceLogger">
+            <!--前置增强-->
+            <aop:before method="before" pointcut-ref="pointcut"/>
+            <!--后置增强-->
+            <aop:after-returning method="afterReturning" pointcut-ref="pointcut" returning="result"/>
+        </aop:aspect>
+    </aop:config>
+</beans>
